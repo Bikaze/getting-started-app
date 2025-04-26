@@ -1,11 +1,11 @@
-# syntax=docker/dockerfile:1
-FROM node:lts AS build
-WORKDIR /app
-COPY package* yarn.lock ./
-RUN yarn install
-COPY public ./public
-COPY src ./src
-RUN yarn run build
+FROM node:lts-alpine
 
-FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
+WORKDIR /app
+
+COPY . .
+
+RUN yarn install --production
+
+CMD ["node", "src/index.js"]
+
+EXPOSE 3000
