@@ -14,7 +14,7 @@ VPC_CIDR="10.0.0.0/16"
 PUBLIC_SUBNET_CIDR="10.0.1.0/24"
 PRIVATE_SUBNET_CIDR="10.0.2.0/24"
 AVAILABILITY_ZONE="eu-west-1a"
-KEY_NAME="" # Replace with your key pair name
+KEY_NAME="bkz-001" # Replace with your key pair name
 INSTANCE_TYPE="t2.micro"     # Increased for better performance
 AMI_ID="ami-0df368112825f8d8f" # Ubuntu 22.04 LTS - update for your region
 
@@ -151,13 +151,6 @@ aws ec2 authorize-security-group-ingress \
   --port 80 \
   --cidr 0.0.0.0/0
 
-# Allow Node.js app port from anywhere
-aws ec2 authorize-security-group-ingress \
-  --group-id $APP_SG_ID \
-  --protocol tcp \
-  --port 3000 \
-  --cidr 0.0.0.0/0
-
 # # Allow all outbound traffic
 # aws ec2 authorize-security-group-egress \
 #   --group-id $APP_SG_ID \
@@ -238,7 +231,7 @@ aws ec2 create-network-acl-entry \
   --rule-action allow \
   --ingress \
   --cidr-block 0.0.0.0/0 \
-  --port-range From=3000,To=3000
+  --port-range From=80,To=80
 
 aws ec2 create-network-acl-entry \
   --network-acl-id $PUBLIC_NACL_ID \
@@ -552,7 +545,7 @@ if [ $? -eq 0 ]; then
   docker pull bikaze/getting-started-app
   docker run -d \
     --name app \
-    -p 3000:3000 \
+    -p 80:3000 \
     -e MYSQL_HOST="PRIVATE_IP_PLACEHOLDER" \
     -e MYSQL_USER="root" \
     -e MYSQL_PASSWORD="secret" \
@@ -594,7 +587,7 @@ echo "=== Setup Complete! ==="
 echo "Node.js Application Instance:"
 echo "  - Instance ID: $PUBLIC_INSTANCE_ID"
 echo "  - Public IP: $PUBLIC_IP"
-echo "  - Access your application at: http://$PUBLIC_IP:3000"
+echo "  - Access your application at: http://$PUBLIC_IP"
 echo "  - SSH access: ssh -i ${KEY_NAME}.pem ubuntu@$PUBLIC_IP"
 echo ""
 echo "MySQL Database Instance:"
